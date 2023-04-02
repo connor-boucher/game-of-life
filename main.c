@@ -268,7 +268,7 @@ cell_update(const world *w, cell *c)
     /* Calculate the cell's next living state using the simulation's rules. */
     c->alive = (c->alive)
                    ? is_between(alive_neighbours, MIN_SURVIVAL, MAX_SURVIVAL)
-                   : is_between(alive_neighbours, MIN_SPAWN, MAX_SPAWN);
+                   : is_between(alive_neighbours, MIN_SPAWN,    MAX_SPAWN);
 
     return c->alive;
 }
