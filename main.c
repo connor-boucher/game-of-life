@@ -164,7 +164,7 @@ world_free(world *w)
 
 /*
  * Iterate the simulation by 1 frame. This means updating the living state of
- * each cell in the provided `world` struct. Returns 1 if the simultion is
+ * each cell in the provided `world` struct. Returns 1 if the simulation is
  * still running and 0 otherwise.
  */
 static int
@@ -186,13 +186,13 @@ world_advance(world *w)
        ended. */
     w->iteration += !is_same_as_prev;
 
-    /* Returns 1 if the simultion is still running and 0 otherwise. */
+    /* Returns 1 if the simulation is still running and 0 otherwise. */
     return !(is_same_as_prev || world_is_empty(w));
 }
 
 /*
  * Compares the values stored by two `world` structs (does not compare
- * iteration count). Returns 0 if the worlds contain identitical data, and 1
+ * iteration count). Returns 0 if the worlds contain identical data, and 1
  * otherwise.
  */
 static int
