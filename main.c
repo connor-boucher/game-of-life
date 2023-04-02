@@ -6,9 +6,10 @@
 #define CLEAR_TERM()   printf("\033[2J")
 #define RESET_CURSOR() printf("\033[H")
 
-#define MIN_SURVIVAL 1
-#define MAX_SURVIVAL 4
-#define SPAWN        3
+#define MIN_SURVIVAL 2
+#define MAX_SURVIVAL 3
+#define MIN_SPAWN    3
+#define MAX_SPAWN    3
 #define INTERVAL     100
 
 typedef struct
@@ -37,6 +38,7 @@ static int    world_compare(const world *w1, const world *w2);
 static int    world_is_empty(const world *w);
 static int    world_is_in_bounds(const world *w, size_t x, size_t y);
 static int    cell_update(const world *w, cell *c);
+static int    is_between(int value, int min, int max);
 
 /*
  * Constructs a `world` struct, and initialises it with sensible default
@@ -265,10 +267,20 @@ cell_update(const world *w, cell *c)
 
     /* Calculate the cell's next living state using the simulation's rules. */
     c->alive = (c->alive)
-                   ? MIN_SURVIVAL < alive_neighbours && alive_neighbours < MAX_SURVIVAL
-                   : alive_neighbours == SPAWN;
+                   ? is_between(alive_neighbours, MIN_SURVIVAL, MAX_SURVIVAL)
+                   : is_between(alive_neighbours, MIN_SPAWN, MAX_SPAWN);
 
     return c->alive;
+}
+
+/*
+ * Calculates whether a value falls within the specified range. Returns 1 if
+ * min <= value <= max, and 0 otherwise. 
+ */
+static int
+is_between(int value, int min, int max)
+{
+    return min <= value && value <= max;
 }
 
 /*
