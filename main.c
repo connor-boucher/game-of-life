@@ -37,6 +37,7 @@ static int    world_advance(world *w);
 static int    world_compare(const world *w1, const world *w2);
 static int    world_is_empty(const world *w);
 static int    world_is_in_bounds(const world *w, size_t x, size_t y);
+static int    cell_count_living_neighbours(const world *w, cell *c);
 static int    cell_update(const world *w, cell *c);
 static int    is_between(int value, int min, int max);
 
@@ -242,6 +243,32 @@ world_is_in_bounds(const world *w, size_t x, size_t y)
 }
 
 /*
+ * Calculates the number of living neighbours surrounding a cell. Returns the
+ * number of living neighbours.
+ */
+static int
+cell_count_living_neighbours(const world *w, cell *c)
+{
+    /* Count the cell's living neighbours. */
+    int living_neighbours = 0;
+    for (int y_offset = -1; y_offset <= 1; y_offset++)
+    {
+        for (int x_offset = -1; x_offset <= 1; x_offset++)
+        {
+            size_t neighbour_x = c->x + x_offset;
+            size_t neighbour_y = c->y + y_offset;
+
+            /* Count every neighbouring cell with an `alive` value of 1. */
+            int is_neighbour_current_cell = x_offset == 0 && y_offset == 0;
+            if (!is_neighbour_current_cell && world_is_in_bounds(w, neighbour_x, neighbour_y))
+                living_neighbours += w->cells[neighbour_y][neighbour_x].alive;
+        }
+    }
+
+    return living_neighbours;
+}
+
+/*
  * Calculates the next living condition for a cell in the simulation using the
  * rules defined by the `MIN_SURVIVAL`, `MAX_SURVIVAL` and `SPAWN` macros.
  * Returns 1 if the cell is alive, and 0 otherwise.
@@ -250,25 +277,12 @@ static int
 cell_update(const world *w, cell *c)
 {
     /* Count the cell's living neighbours. */
-    int alive_neighbours = 0;
-    for (int y_offset = -1; y_offset <= 1; y_offset++)
-    {
-        for (int x_offset = -1; x_offset <= 1; x_offset++)
-        {
-            int neighbour_x = c->x + x_offset;
-            int neighbour_y = c->y + y_offset;
-
-            /* Count every neighbouring cell with an `alive` value of 1. */
-            int is_neighbour_current_cell = x_offset == 0 && y_offset == 0;
-            if (!is_neighbour_current_cell && world_is_in_bounds(w, neighbour_x, neighbour_y))
-                alive_neighbours += w->cells[neighbour_y][neighbour_x].alive;
-        }
-    }
+    int living_neighbours = cell_count_living_neighbours(w, c);
 
     /* Calculate the cell's next living state using the simulation's rules. */
     c->alive = (c->alive)
-                   ? is_between(alive_neighbours, MIN_SURVIVAL, MAX_SURVIVAL)
-                   : is_between(alive_neighbours, MIN_SPAWN,    MAX_SPAWN);
+                   ? is_between(living_neighbours, MIN_SURVIVAL, MAX_SURVIVAL)
+                   : is_between(living_neighbours, MIN_SPAWN,    MAX_SPAWN);
 
     return c->alive;
 }
